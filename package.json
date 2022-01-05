@@ -1,0 +1,31 @@
+{
+  "name": "ruoyu_account",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --watch",
+    "dev": "nodemon ./build/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ry0513/RuoYu_Account.git"
+  },
+  "author": "ruoyu",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/ry0513/RuoYu_Account/issues"
+  },
+  "homepage": "https://github.com/ry0513/RuoYu_Account#readme",
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@typescript-eslint/eslint-plugin": "^5.9.0",
+    "@typescript-eslint/parser": "^5.9.0",
+    "eslint": "^8.6.0",
+    "eslint-config-google": "^0.14.0"
+  },
+  "dependencies": {
+    "express": "^4.17.2"
+  }
+}
