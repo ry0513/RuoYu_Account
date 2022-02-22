@@ -1,12 +1,12 @@
 import sass from "node-sass";
 import uglifyJS from "uglify-js";
 import fs from "fs-extra";
-import { resolve } from "path";
+import { resolve, sep } from "path";
 const watch = process.env.NODE_WATCH === "dev";
+
 /**
  *    css相关
  */
-
 // 创建 css 文件夹
 if (!fs.existsSync(resolve(__dirname, "../css"))) {
     fs.mkdirSync(resolve(__dirname, "../css"));
@@ -14,7 +14,7 @@ if (!fs.existsSync(resolve(__dirname, "../css"))) {
 
 // 编译
 const compile = (path: string) => {
-    const dirArr = path.replace(resolve(__dirname, "../scss"), "").split("\\");
+    const dirArr = path.replace(resolve(__dirname, "../scss"), "").split(sep);
     dirArr.shift();
     dirArr.pop();
     dirArr.forEach((item, i) => {
@@ -25,8 +25,11 @@ const compile = (path: string) => {
             fs.mkdirSync(dir);
         }
     });
-    const destPath = path.replace("\\scss\\", "\\css\\").replace(".scss", ".css");
-    const destMinPath = path.replace("\\scss\\", "\\css\\").replace(".scss", ".min.css");
+
+    const destPath = path.replace(`${sep}scss${sep}`, `${sep}css${sep}`).replace(".scss", ".css");
+    const destMinPath = path
+        .replace(`${sep}scss${sep}`, `${sep}css${sep}`)
+        .replace(".scss", ".min.css");
     sass.render(
         {
             file: path,
@@ -64,27 +67,19 @@ autoCompile();
 /**
  *    js相关
  */
-// 创建 js 文件夹
-if (!fs.existsSync(resolve(__dirname, "../js"))) {
-    fs.mkdirSync(resolve(__dirname, "../js"));
-}
-
 // 压缩
 const uglify = (path: string) => {
     const index = path.lastIndexOf(".");
     if (index < 0) return;
     if (path.substring(index + 1) !== "js") return;
     if (path.indexOf(".min.js") !== -1) return;
-    const pathArr = path.split("\\");
-    const key = pathArr[pathArr.length - 1];
     const res = uglifyJS.minify(fs.readFileSync(path, "utf8"), {
         sourceMap: {
-            filename: key.replace(".js", ".min.js"),
-            url: key.replace(".js", ".min.map"),
+            filename: path.replace(".js", ".min.js"),
+            url: path.replace(".js", ".min.map"),
         },
     });
     if (res.error) {
-        console.log(res.error);
         return;
     }
     fs.writeFileSync(path.replace(".js", ".min.js"), res.code);
