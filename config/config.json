@@ -1,0 +1,22 @@
+{
+	"databaseDialect": "mysql",
+	"databaseHost": "localhost",
+	"databaseDatabase": "ruoyu_account",
+	"databaseUsername": "root",
+	"databasePassword": "root",
+	"httpPort": 3000,
+	"redisHost": "127.0.0.1",
+	"redisPort": 6379,
+	"redisPassword": "xxxxxxxx",
+	"redisKey": "RUOYU:",
+	"redisSecret": "xxxxxxxx",
+	"sessionMaxAge": 60,
+	"sessionName": "RUOYU_SESSION_ID",
+	"cdnUrl": "",
+	"cookieDomain": "127.0.0.1",
+	"TXDT": {
+		"KEY": "xxxxxxxx",
+		"SK": "xxxxxxxx"
+	},
+	"md5Val": "xxxxxxxx"
+}
