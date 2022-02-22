@@ -4,8 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "build": "concurrently \"cd src && tsc\" \"cd static && tsc\"",
-    "dev": "npm run build && concurrently \"cd src && tsc --watch\" \"cd static && tsc --watch\" \"nodemon build/app\" \"ts-node static/ts/auto\"",
+    "build": "concurrently \"cd src && tsc\" \"cd static && tsc\" \"ts-node static/ts/auto\"",
+    "dev": "npm run build && concurrently \"cd src && tsc --watch\" \"cd static && tsc --watch\" \"nodemon build/app\" \"cross-env NODE_WATCH=dev ts-node static/ts/auto\"",
     "start": "node build/app",
     "dbinit": "cd src && tsc && cd ../ && node ./build/db/init"
   },
@@ -49,6 +49,7 @@
     "@typescript-eslint/eslint-plugin": "^5.10.1",
     "@typescript-eslint/parser": "^5.10.1",
     "concurrently": "^7.0.0",
+    "cross-env": "^7.0.3",
     "eslint": "^8.7.0",
     "node-sass": "^7.0.1",
     "nodemon": "^2.0.15",
