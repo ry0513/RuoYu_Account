@@ -40,12 +40,10 @@ router.get("/out", (req, res) => {
             const sessionID = req.sessionID;
             req.session.destroy(async () => {
                 await redisDelAccountByRedisId(sessionID);
-                // RUOYU.res.success(res, { msg: "退出成功" });
                 res.render("out", { msg: "退出成功" });
             });
         },
         () => {
-            // RUOYU.res.error(res, { msg: "未找到登录信息" });
             res.render("out", { msg: "未找到登录信息" });
         }
     );
