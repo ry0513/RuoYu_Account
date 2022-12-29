@@ -22,7 +22,7 @@ $ry(".submit").click(() => {
                 description: res.msg,
             });
             setTimeout(() => {
-                window.location.replace($ryTools.getUrlValue("path") || "/");
+                window.location.replace(decodeURIComponent($ryTools.getUrlValue("path") || "/"));
             }, 1000);
         } else {
             $ryTools.notify({
