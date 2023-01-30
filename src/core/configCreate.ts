@@ -45,7 +45,7 @@ export const createMysql = async (path: string) => {
       resolve(true);
     } else {
       logger.info("请重新输入 MYSQL 配置信息：");
-      createMysql(path);
+      resolve(createMysql(path));
     }
   });
 };
@@ -82,7 +82,8 @@ export const createRedis = async (path: string) => {
       resolve(true);
     } else {
       logger.info("请重新输入 REDIS 配置信息：");
-      createRedis(path);
+      resolve(createRedis(path));
     }
   });
 };
+
