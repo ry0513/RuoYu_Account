@@ -1,4 +1,4 @@
-import sass from "node-sass";
+import sass from "sass";
 import uglifyJS from "uglify-js";
 import fs from "fs-extra";
 import { resolve, sep } from "path";
@@ -36,26 +36,9 @@ const compile = (path: string) => {
     const destMinPath = path
         .replace(`${sep}scss${sep}`, `${sep}css${sep}`)
         .replace(".scss", ".min.css");
-    sass.render(
-        {
-            file: path,
-            outputStyle: "expanded",
-        },
-        (err, result) => {
-            if (err) throw err;
-            fs.writeFileSync(destPath, result.css, "utf8");
-        }
-    );
-    sass.render(
-        {
-            file: path,
-            outputStyle: "compressed",
-        },
-        (err, result) => {
-            if (err) throw err;
-            fs.writeFileSync(destMinPath, result.css, "utf8");
-        }
-    );
+    fs.writeFileSync(destPath, sass.compile(path, { style: "expanded" }).css, "utf8");
+    fs.writeFileSync(destMinPath, sass.compile(path, { style: "compressed" }).css, "utf8");
+
 };
 
 // 自动检测文件
