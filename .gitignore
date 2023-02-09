@@ -29,3 +29,6 @@ package-lock.json
 config/mysql.json
 config/redis.json
 config_default
+
+static/css/
+static/js/
