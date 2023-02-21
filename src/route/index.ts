@@ -1,4 +1,6 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
+import { needLogin } from "../core/permission";
+import { getApp } from "../db/api/apps";
 // import fs from "fs-extra";
 // import { needLogin } from "../core/permission";
 // import { redisDelAccountByRedisId } from "../core/redis";
@@ -6,33 +8,58 @@ import { Router } from "express";
 const router = Router();
 
 // 首页
-// router.get("/", (req, res) => {
-//     needLogin(10, req, res, () => {
-//         res.locals = {
-//             user: req.session.account,
-//         };
-//         res.render("home");
-//     });
-// });
+router.get("/", needLogin({ toLogin: true }), (req, res) => {
+  res.locals = {
+    user: req.session.account,
+  };
+  res.render("home");
+});
 
 // 登录
 router.get("/login", (req, res) => {
-    res.render("login");
-    // res.send({ a: 333 })
-    // needLogin(
-    //     10,
-    //     req,
-    //     res,
-    //     () => {
-    //         res.redirect("/");
-    //     },
-    //     () => {
-    //         res.render("login");
-    //     }
-    // );
+  if (req.session.account) {
+    return res.redirect("/");
+  }
+  res.render("login");
 });
 
-// // 退出
+// token
+router.get(
+  "/token",
+  verify("query", {
+    redirectUri: joi
+      .string()
+      .required()
+      .error(new Error("redirectUri 不符合验证格式")),
+    appId: joi
+      .number()
+      .required()
+      .integer()
+      .error(new Error("appId 不符合验证格式")),
+    clientKey: joi
+      .string()
+      .required()
+      .error(new Error("clientKey 不符合验证格式")),
+  }),
+  needLogin({ toLogin: true }),
+  async (req: Request<{}, {}, {}, RequestGet>, res: Response) => {
+    const { redirectUri, appId, clientKey } = req.query;
+    const app = await getApp({ appId, clientKey });
+    if (!app) {
+      return common.res.error(res);
+    }
+    const tk = common.UUID("");
+    redis.set(
+      `apps:${tk}`,
+      JSON.stringify({ app, account: req.session.account }),
+      "EX",
+      60 * 5
+    );
+    return res.redirect(`${redirectUri}?tk=${tk}`);
+  }
+);
+
+// // // 退出
 // router.get("/out", (req, res) => {
 //     needLogin(
 //         10,

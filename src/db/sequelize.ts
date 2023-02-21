@@ -1,7 +1,7 @@
 import { Sequelize } from "sequelize-typescript";
 
 import Account from "./modles/Account";
-import App from "./modles/App";
+import App from "./modles/Apps";
 import Record from "./modles/Record";
 export const sequelizeRun = ({
   host,
@@ -52,10 +52,12 @@ export const mysqlInit = () => {
       defaults: {
         accountId: 10001,
         nickName: "超级管理员",
-        password: "ruoyu",
-        email: "ruoyu",
+        password: common.encryption.encryptAsym("ruoyu"),
+        email: "ruoyu@xxx.com",
         status: 1,
-        avatar: "https://pica.zhimg.com/80/v2-d181474a2481c290898cf7d183b41a7e_720w.jpg?source=1940ef5c",
+        salt: common.baseConfig.crypto.salt,
+        avatar:
+          "https://pica.zhimg.com/80/v2-d181474a2481c290898cf7d183b41a7e_720w.jpg?source=1940ef5c",
       },
     });
     // await App.findOrCreate({

@@ -9,7 +9,7 @@ import {
   Default,
 } from "sequelize-typescript";
 import Record from "./Record";
-import App from "./App";
+import App from "./Apps";
 @Table({
   tableName: "account",
   paranoid: true,
@@ -44,6 +44,9 @@ export default class Account extends Model {
 
   @Column({ type: DataType.STRING, comment: "注册地点" })
   registerPlace!: string;
+
+  @Column({ type: DataType.STRING, comment: "salt" })
+  salt!: string;
 
   @HasMany(() => Record)
   records!: Record[];

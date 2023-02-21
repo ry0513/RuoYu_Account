@@ -1,6 +1,9 @@
 import { Router } from "express";
-import { Request, Response, NextFunction } from "express";
-import Joi from 'joi';
+import { getUser } from "../db/api/account";
+import { getApp } from "../db/api/apps";
+import { createRecord } from "../db/api/record";
+import { redisSetAccount } from "../redis/redis";
+
 // import { celebrate, Joi, errors, Segments } from 'celebrate';
 // import { redisDelAccountByAccountId, redisSetAccount } from "../core/redis";
 // import RUOYU from "../core/ruoyu";
@@ -9,144 +12,77 @@ import Joi from 'joi';
 // import { createRecord } from "../db/api/record";
 
 const router = Router();
-const a = Joi.object().keys({
-    title: Joi.string().required(),
-    description: Joi.string().required(),
-    year: Joi.number()
-})
-//     a.validate()
 
-// const middleware = (schema: any, property: any) => {
-//     return (req, res, next) => {
-//         const { error } = Joi.validate(req.body, schema);
-//         const valid = error == null;
-
-//         if (valid) {
-//             next();
-//         } else {
-//             const { details } = error;
-//             const message = details.map(i => i.message).join(',');
-
-//             console.log("error", message);
-//             res.status(422).json({ error: message })
-//         }
-//     }
-// }
-
-
-const sss = (property: "body" | "query", schema: Joi.ObjectSchema<any>) => {
-    return (
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) => {
-        const { error } = schema.validate(req[property]);
-        console.log(error);
-        const valid = error == null;
-        if (valid) { next(); }
-        else {
-            const { details } = error;
-            const message = details.map(i => i.message).join(',')
-            console.log("error", message);
-            res.status(422).json({ error: message })
-        }
+router.post(
+  "/login",
+  verify("body", {
+    email: joi
+      .string()
+      .required()
+      .email()
+      .error(new Error("邮箱不符合验证格式")),
+    password: joi.string().required().error(new Error("密码不符合验证格式")),
+  }),
+  async (req, res) => {
+    const { email, password } = req.body;
+    const user = await getUser({ email }, ["password", "salt"]);
+    if (
+      !user ||
+      user.password !== common.encryption.encryptAsym(password, user.salt)
+    ) {
+      if (user) {
+        await createRecord(user.accountId, req, false);
+      }
+      return common.res.error(res, { msg: "邮箱或密码不正确" });
     }
-}
 
-router.post("/login", sss("body", Joi.object().keys({
-    title: Joi.string().required().messages({
-        "string.empty": "用户名必填",
-        "any.required": "用户名必填",
-        "string.alphanum": '只能包含a-zA-Z0-9',
-        "string.max": '用户名长度不能超过10',
-    }),
-    description: Joi.string().required(),
-    year: Joi.number()
-})), (req, res) => {
-    res.send({ w: 33 })
-})
-// router.post("/login", celebrate({
-//     [Segments.BODY]: Joi.object().keys({
-//         name: Joi.string().min(5).max(12).required().messages({
-//             "string.empty": "用户名必填",
-//             "any.required": "用户名必填",
-//             "string.alphanum": '只能包含a-zA-Z0-9',
-//             "string.max": '用户名长度不能超过10',
-//         }),//自己定义提示内容
-//         password: Joi.string().required(),
-//     }),
+    req.session.account = {
+      accountId: user.accountId,
+      nickName: user.nickName,
+      avatar: user.avatar,
+    };
 
-// }), async (req, res) => {
-//     console.log(req.body);
+    await createRecord(user.accountId, req, true);
+    await redisSetAccount(user.accountId, req.sessionID);
 
+    common.res.success(res);
+  }
+);
 
-//     req.session.account = { accountId: 67 };
-//     console.log(req.sessionID);
-
-//     // redis.set('324324', {
-//     //     description: 'sdsd',
-//     //     url: 'http://www.abc.com/abc.html',
-//     //     appId: '123456'
-//     // });
-
-//     // redis.hmset("aaa", { aaa: 333 }, function (err) {
-//     //     console.log(err)
-//     // })
-//     // redis.hmset("aaa", { username: 456, }, function (err) {
-//     //     console.log(err)
-//     // })
-//     // redis.hmset("aaa", { aaawww: "ijjj", }, function (err) {
-//     //     console.log(err)
-//     // })
-//     // redis.hgetall("aaa", function (err, object) {
-//     //     console.log(object["username"])
-//     // })
-
-//     res.send({ aa: 333 })
-// })
-
-
-// router.post("/login", async (req, res) => {
-//     const email = toString(req.body.email);
-//     const password = toString(req.body.password);
-//     if (email && password) {
-//         const user = await getUser({ email }, ["password"]);
-//         if (user) {
-//             if (RUOYU.md5Pass(password) === user?.password) {
-//                 req.session.account = user;
-//                 await createRecord(user.accountId, req, true);
-//                 await redisDelAccountByAccountId(user.accountId);
-//                 await redisSetAccount(user.accountId, req.sessionID);
-//                 RUOYU.res.success(res, {
-//                     msg: "登录成功",
-//                     sessionID: req.sessionID,
-//                     session: req.session,
-//                 });
-//                 console.log(res.getHeaders()["set-cookie"]);
-//                 const cook = res.getHeaders()["set-cookie"];
-//                 const getCookie = function (name: string, cookie: string) {
-//                     let arr;
-//                     const reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
-//                     if ((arr = cookie.match(reg))) return decodeURI(arr[2]);
-//                     else return null;
-//                 };
-
-//                 console.log(
-//                     getCookie(
-//                         "RUOYU_SESSION_ID",
-//                         (typeof cook === "object" && cook[0]) || cook + ""
-//                     )
-//                 );
-
-//                 return;
-//             }
-//             // s%3AbyrNwfqfdUF5Tsp_wRukk5ezHcwRTpSN.A%2BwUhJmch5MFnXFdOnmhk3pxah02xJJu1aRU41BxBMc
-//             createRecord(user.accountId, req, false);
-//         }
-//         RUOYU.res.error(res, { msg: "邮箱或密码不正确" });
-//         return;
-//     }
-//     RUOYU.res.parameter(res);
-// });
+router.post(
+  "/token",
+  verify("body", {
+    appId: joi
+      .number()
+      .required()
+      .integer()
+      .error(new Error("appId 不符合验证格式")),
+    serveKey: joi
+      .string()
+      .required()
+      .error(new Error("serveKey 不符合验证格式")),
+    tk: joi
+      .string()
+      .required()
+      .alphanum()
+      .length(32)
+      .error(new Error("tk 不符合验证格式")),
+  }),
+  async (req, res) => {
+    const { appId, serveKey, tk } = req.body;
+    const app = await getApp({ appId, serveKey });
+    if (!app) {
+      return common.res.error(res, { data: "未认证的请求" });
+    }
+    redis.get(`apps:${tk}`, async (err, data) => {
+      if (!data) {
+        return common.res.error(res, { data: "未认证的请求" });
+      }
+      common.res.success(res, {
+        data: await getUser({ accountId: JSON.parse(data).account.accountId }),
+      });
+    });
+  }
+);
 
 export default router;

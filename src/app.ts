@@ -8,10 +8,6 @@ import Route from "./route/index";
 import Api from "./api/index";
 import Locals from "./core/local";
 
-
-
-
-
 (async () => {
   await init();
   const app = express();
@@ -27,13 +23,13 @@ import Locals from "./core/local";
   app.use(
     session({
       cookie: {
-        maxAge: 1000 * 5,
+        maxAge: 1000 * 60 * 60,
         // maxAge: 1000 * 3,
         // domain: RUOYU.cookieDomain,
       },
-      store: new RedisStrore({ client: redis, prefix: "RUOYU:" }),
-      secret: "RUOYU1",
-      name: "RUOYU2",
+      store: new RedisStrore({ client: redis, prefix: "RY_TOKEN:" }),
+      secret: "RUOYU",
+      name: "RUOYU",
       rolling: true,
       saveUninitialized: false,
       resave: true,

@@ -26,9 +26,7 @@ yarn.lock
 package-lock.json
 
 # config
-config/mysql.json
-config/redis.json
-config_default
+config/*
 
 static/css/
 static/js/

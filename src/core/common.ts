@@ -1,11 +1,30 @@
-import { createHmac, createHash } from "crypto";
+import {
+  createHmac,
+  createCipheriv,
+  createDecipheriv,
+  randomUUID,
+} from "crypto";
 import { resolve } from "path";
+
 global.common = {
-  sleep: (ms: number) => {
+  baseConfig: {
+    cdnUrl: "",
+    crypto: {
+      key: "",
+      iv: "",
+      salt: "",
+    },
+  },
+
+  UUID: (_ = "-") => {
+    return randomUUID({ disableEntropyCache: true }).replace(/-/g, _);
+  },
+
+  sleep: (ms) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   },
 
-  import: (path: string) => {
+  import: (path) => {
     return new Promise((resolve) =>
       import(path).then((item) => resolve(item.default))
     );
@@ -20,11 +39,61 @@ global.common = {
     return new Promise(() => setTimeout(process.exit, 3000));
   },
 
-  md5Pass: (val: string, md5Val = "RUOYU") => {
-    return createHmac("sha256", md5Val).update(val).digest("hex");
+  encryption: {
+    encrypt: (
+      val,
+      key = common.baseConfig.crypto.key,
+      iv = common.baseConfig.crypto.iv
+    ) => {
+      let encrypted = "";
+      const cipher = createCipheriv("aes-256-cbc", key, iv);
+      encrypted += cipher.update(val, "utf8", "base64");
+      encrypted += cipher.final("base64");
+      return encrypted;
+    },
+
+    decrypt: (
+      val,
+      key = common.baseConfig.crypto.key,
+      iv = common.baseConfig.crypto.iv
+    ) => {
+      try {
+        let decrypted = "";
+        const cipher = createDecipheriv("aes-256-cbc", key, iv);
+        decrypted += cipher.update(val, "base64", "utf8");
+        decrypted += cipher.final("utf8");
+        return decrypted;
+      } catch (error) {
+        return null;
+      }
+    },
+
+    encryptAsym: (val, salt = common.baseConfig.crypto.salt) => {
+      return createHmac("sha256", salt).update(val).digest("hex");
+    },
   },
 
-  md5: (val: string) => {
-    return createHash("md5").update(val).digest("hex");
+  rules: {
+    passWord: { reg: /^[a-zA-Z0-9@?!]{3,20}$/, msg: "请检查密码格式" },
+  },
+
+  res: {
+    success: (res, obj = {}) => {
+      res.send({ code: 0, msg: "操作成功", ...obj });
+    },
+
+    parameter: (res, obj = {}) => {
+      res.send({ code: -1, msg: "请检查参数", ...obj });
+    },
+
+    needLogin: (res, obj = {}) => {
+      res.send({ code: -2, msg: "没有找到登录信息，未登录或登录过期", ...obj });
+    },
+    permission: (res, obj = {}) => {
+      res.send({ code: -3, msg: "权限不足", ...obj });
+    },
+    error: (res, obj = {}) => {
+      res.send({ code: -4, msg: "操作失败", ...obj });
+    },
   },
 };
