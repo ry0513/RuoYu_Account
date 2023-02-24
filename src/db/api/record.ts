@@ -2,11 +2,10 @@ import Record from "../modles/Record";
 import { Request } from "express";
 import { getCity, getIp, getUa } from "../../core/tools";
 /**
- *
+ * @description 创建登录信息
  * @param accountId 账号ID
  * @param req
  * @param success 是否登录成功
- * @returns
  */
 export const createRecord = async (
   accountId: number,

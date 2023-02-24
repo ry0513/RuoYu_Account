@@ -13,23 +13,37 @@ export const getIp = (req: Request) => {
 /**
  * @description 获取地址
  */
-export const getCity = (ip: string) => {
+export const getCity = (
+  ip: string,
+  {
+    serve = common.map.serve,
+    key = common.map.key,
+    sk = common.map.sk,
+    isTest = false,
+  } = {}
+) => {
   return new Promise<string>((resolve) => {
-    resolve("未知");
-    // axios({
-    //     method: "get",
-    //     url: `https://apis.map.qq.com/ws/location/v1/ip?ip=${ip}&key=${RUOYU.TXDT.KEY
-    //         }&sig=${RUOYU.md5(
-    //             `/ws/location/v1/ip?ip=${ip}&key=${RUOYU.TXDT.KEY}${RUOYU.TXDT.SK}`
-    //         )}`,
-    // }).then(({ data: res }) => {
-    //     if (res.status) {
-    //         resolve("未知地区");
-    //     } else {
-    //         const { city, district } = res.result.ad_info;
-    //         resolve(`${city}${district}`);
-    //     }
-    // });
+    if (serve === "txdt") {
+      axios({
+        method: "get",
+        url: `https://apis.map.qq.com/ws/location/v1/ip?ip=${ip}&key=${key}&sig=${common.encryption.md5(
+          `/ws/location/v1/ip?ip=${ip}&key=${key}${sk}`
+        )}`,
+      }).then(({ data }) => {
+        if (data.status === 0) {
+          const { city, district } = data.result.ad_info;
+          resolve(city + district);
+        } else {
+          if (isTest) {
+            resolve("error");
+          } else {
+            resolve("未知");
+          }
+        }
+      });
+    } else {
+      resolve("未知");
+    }
   });
 };
 

@@ -20,7 +20,7 @@ interface loggerFun {
   error: (msg: string, err?: { message: string }) => void;
 }
 
-interface mysqlConfig {
+interface MysqlConfig {
   host: string;
   port: number;
   database: string;
@@ -28,11 +28,15 @@ interface mysqlConfig {
   password: string;
 }
 
-interface redisConfig {
+interface RedisConfig {
   port: number;
   host: string;
   password: string;
   db?: string;
 }
-
+interface MapConfig {
+  serve: string;
+  key: string;
+  sk: string;
+}
 type RequestGet = { [key: string]: any };

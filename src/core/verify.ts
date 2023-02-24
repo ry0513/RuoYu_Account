@@ -1,5 +1,6 @@
 import Joi from "joi";
 global.joi = Joi;
+
 global.verify = (property, schema, callback) => {
   return (req, res, next) => {
     const { error } = joi

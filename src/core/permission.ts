@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 
-// 权限中间件
-export const needLogin = ({ toLogin } = { toLogin: false }) => {
+/**
+ * @description 账号信息
+ * @param toLogin 是否跳转登录页
+ */
+export const needLogin = ({ toLogin = false } = {}) => {
   return (
     { session: { account }, originalUrl }: Request,
     res: Response,

@@ -3,7 +3,12 @@ import fs from "fs-extra";
 import "./common";
 import "./log";
 import "./verify";
-import { createMysql, createRedis, createBase } from "./configCreate";
+import {
+  createMysql,
+  createRedis,
+  createBase,
+  createMap,
+} from "./configCreate";
 import { mysqlInit, sequelizeRun } from "../db/sequelize";
 import { redisRun } from "../redis/redis";
 export default async () => {
@@ -14,6 +19,12 @@ export default async () => {
   if (!fs.existsSync(PATH_CONFIG)) fs.mkdirSync(PATH_CONFIG);
 
   // 检测配置文件是否存在
+  // BASE - 基础配置
+  const PATH_BASE = getPath("base");
+  if (!fs.existsSync(PATH_BASE)) {
+    logger.error("缺少 BASE 配置文件，请输入信息");
+    await createBase(PATH_BASE);
+  }
   // MYSQL - 数据库
   const PATH_MYSQL = getPath("mysql");
   if (!fs.existsSync(PATH_MYSQL)) {
@@ -26,17 +37,18 @@ export default async () => {
     logger.error("缺少 REDIS 配置文件，请输入信息");
     await createRedis(PATH_REDIS);
   }
-  // BASE - 缓存
-  const PATH_BASE = getPath("base");
-  if (!fs.existsSync(PATH_BASE)) {
-    logger.error("缺少 BASE 配置文件，请输入信息");
-    await createBase(PATH_BASE);
+  // MAP - 地图
+  const PATH_MAP = getPath("map");
+  if (!fs.existsSync(PATH_MAP)) {
+    logger.error("缺少 MAP 配置文件，请输入信息");
+    await createMap(PATH_MAP);
   }
 
   // 运行
   common.baseConfig = (await common.import(PATH_BASE)) as BaseConfig;
-  await sequelizeRun((await common.import(PATH_MYSQL)) as mysqlConfig);
-  await redisRun((await common.import(PATH_REDIS)) as redisConfig);
+  common.map = (await common.import(PATH_MAP)) as MapConfig;
+  await sequelizeRun((await common.import(PATH_MYSQL)) as MysqlConfig);
+  await redisRun((await common.import(PATH_REDIS)) as RedisConfig);
 
   await mysqlInit();
 

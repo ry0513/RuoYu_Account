@@ -1,14 +1,9 @@
 import Apps from "../modles/Apps";
-// export const getUser = (
-//     where: { accountId?: number; email?: string },
-//     attributes: string[] = []
-// ) => {
-//     return Account.findOne({
-//         attributes: ["accountId", "nickName", "email", "phone", "avatar", "status", ...attributes],
-//         where,
-//     });
-// };
 
+/**
+ * @description 获取App信息
+ * @returns 默认：appId，appName
+ */
 export const getApp = (
   where: { appId?: number; clientKey?: string; serveKey?: string },
   attributes: string[] = []

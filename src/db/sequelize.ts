@@ -9,7 +9,7 @@ export const sequelizeRun = ({
   database,
   user,
   password,
-}: mysqlConfig) => {
+}: MysqlConfig) => {
   return new Promise((resolve) => {
     global.sequelize = new Sequelize(database, user, password, {
       host,
@@ -60,17 +60,6 @@ export const mysqlInit = () => {
           "https://pica.zhimg.com/80/v2-d181474a2481c290898cf7d183b41a7e_720w.jpg?source=1940ef5c",
       },
     });
-    // await App.findOrCreate({
-    //   where: {
-    //     appId: 100,
-    //   },
-    //   defaults: {
-    //     appId: 100,
-    //     accountId: 10001,
-    //     appName: "若宇博客",
-    //     appKey: "70ddda2aa064a16d18a2598ae6f8f1ff",
-    //   },
-    // });
     logger.info("MYSQL 模块: 结束初始化");
     resolve(true);
   });
@@ -82,7 +71,7 @@ export const mysqlTest = ({
   database,
   user,
   password,
-}: mysqlConfig) => {
+}: MysqlConfig) => {
   return new Promise((resolve, reject) => {
     new Sequelize(database, user, password, {
       host,

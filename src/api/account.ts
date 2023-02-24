@@ -1,18 +1,13 @@
 import { Router } from "express";
+import { needLogin } from "../core/permission";
 import { getUser } from "../db/api/account";
 import { getApp } from "../db/api/apps";
 import { createRecord } from "../db/api/record";
-import { redisSetAccount } from "../redis/redis";
-
-// import { celebrate, Joi, errors, Segments } from 'celebrate';
-// import { redisDelAccountByAccountId, redisSetAccount } from "../core/redis";
-// import RUOYU from "../core/ruoyu";
-// import { toString } from "../core/tools";
-// import { getUser } from "../db/api/account";
-// import { createRecord } from "../db/api/record";
+import { redisDelAccount, redisSetAccount } from "../redis/redis";
 
 const router = Router();
 
+// 登录 login
 router.post(
   "/login",
   verify("body", {
@@ -45,12 +40,22 @@ router.post(
     await createRecord(user.accountId, req, true);
     await redisSetAccount(user.accountId, req.sessionID);
 
-    common.res.success(res);
+    common.res.success(res, { msg: "登录成功" });
   }
 );
 
+// 退出 logout
+router.post("/logout", needLogin(), async (req, res) => {
+  const sessionID = req.sessionID;
+  req.session.destroy(async () => {
+    await redisDelAccount({ redisId: sessionID });
+    common.res.success(res, { msg: "退出成功" });
+  });
+});
+
+// 获取信息 getUser
 router.post(
-  "/token",
+  "/getUser",
   verify("body", {
     appId: joi
       .number()

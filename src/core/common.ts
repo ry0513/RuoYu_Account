@@ -3,6 +3,7 @@ import {
   createCipheriv,
   createDecipheriv,
   randomUUID,
+  createHash,
 } from "crypto";
 import { resolve } from "path";
 
@@ -14,6 +15,11 @@ global.common = {
       iv: "",
       salt: "",
     },
+  },
+  map: {
+    serve: "",
+    key: "",
+    sk: "",
   },
 
   UUID: (_ = "-") => {
@@ -70,6 +76,9 @@ global.common = {
 
     encryptAsym: (val, salt = common.baseConfig.crypto.salt) => {
       return createHmac("sha256", salt).update(val).digest("hex");
+    },
+    md5: (value) => {
+      return createHash("md5").update(value).digest("hex");
     },
   },
 

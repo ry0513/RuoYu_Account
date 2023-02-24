@@ -1,6 +1,6 @@
 interface BaseConfig {
   /**
-   * @description cdn链接
+   * @description cdn 链接
    */
   cdnUrl: string;
 
@@ -60,6 +60,10 @@ interface Encryption {
    * 非对称加密
    */
   encryptAsym: (val: string, salt?: string) => string;
+  /**
+   * MD5
+   */
+  md5: (val: string) => string;
 }
 
 interface Common {
@@ -67,6 +71,11 @@ interface Common {
    * @description 基本配置
    */
   baseConfig: BaseConfig;
+
+  /**
+   * @description map 地图服务
+   */
+  map: MapConfig;
 
   /**
    * @description 生成uuid

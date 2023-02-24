@@ -3,10 +3,12 @@ import fs from "fs-extra";
 
 import { mysqlTest } from "../db/sequelize";
 import { redisTest } from "../redis/redis";
-import { number } from "joi";
+
+import Rx from "rxjs/Rx";
+import { getCity } from "./tools";
 
 /**
- * @description 创建mysql配置文件
+ * @description 创建 mysql 配置文件
  */
 export const createMysql = async (path: string) => {
   return new Promise(async (resolve, reject) => {
@@ -53,7 +55,7 @@ export const createMysql = async (path: string) => {
 };
 
 /**
- * @description 创建redis配置文件
+ * @description 创建 redis 配置文件
  */
 export const createRedis = async (path: string) => {
   return new Promise(async (resolve, reject) => {
@@ -85,9 +87,9 @@ export const createRedis = async (path: string) => {
       redis.db = (
         await inquirer.prompt([
           {
-            name: "rawlist",
-            type: "list",
+            type: "rawlist",
             message: "请选择数据库",
+            name: "db",
             choices: () => {
               const list = [];
               for (let i = 0; i < size; i++) {
@@ -97,7 +99,7 @@ export const createRedis = async (path: string) => {
             },
           },
         ])
-      ).rawlist;
+      ).db;
       fs.writeFileSync(path, JSON.stringify(redis, null, 4));
       logger.info(`已生成 REDIS 配置,位置：${path}`);
       resolve(true);
@@ -109,7 +111,7 @@ export const createRedis = async (path: string) => {
 };
 
 /**
- * @description 创建base配置文件
+ * @description 创建 base 配置文件
  */
 export const createBase = async (path: string) => {
   return new Promise(async (resolve, reject) => {
@@ -154,5 +156,74 @@ export const createBase = async (path: string) => {
     logger.info(`已生成 base 配置,位置：${path}`);
     await common.sleep(1000);
     resolve(true);
+  });
+};
+
+/**
+ * @description 创建 map 配置文件
+ */
+export const createMap = async (path: string) => {
+  return new Promise(async (resolve, reject) => {
+    const map: MapConfig = await (() => {
+      return new Promise((resolve, reject) => {
+        const prompts = new Rx.Subject();
+        const map: { [key: string]: string } = {};
+        inquirer.prompt(prompts).ui.process.subscribe(
+          async (res) => {
+            map[res.name] = res.answer;
+            if (res.name === "serve" && res.answer !== "") {
+              prompts.next({
+                type: "Input",
+                message: "请输入地图API的 key 值：",
+                name: "key",
+              });
+              prompts.next({
+                type: "Input",
+                message: "请输入地图API的 Secret key 值：",
+                name: "sk",
+              });
+            }
+            prompts.complete();
+          },
+          (error) => {
+            logger.error("MAP 配置失败");
+          },
+          () => {
+            resolve(map as unknown as MapConfig);
+          }
+        );
+        prompts.next({
+          type: "list",
+          message: "请选择地图 Api 服务",
+          name: "serve",
+          choices: [
+            { value: "", name: "不启用" },
+            { value: "txdt", name: "腾讯地图" },
+          ],
+        });
+      });
+    })();
+    logger.info("开始测试 MAP 信息");
+
+    if (!map.serve) {
+      fs.writeFileSync(path, JSON.stringify(map, null, 4));
+      logger.info("MAP 模块: 无需测试");
+      logger.info(`已生成 MAP 配置,位置：${path}`);
+      await common.sleep(1000);
+      resolve(true);
+    } else if (
+      (await getCity("123.123.123.123", { ...map, isTest: true })) !== "error"
+    ) {
+      logger.info("MAP 模块: 调用成功");
+      fs.writeFileSync(path, JSON.stringify(map, null, 4));
+      logger.info(`已生成 MAP 配置,位置：${path}`);
+      await common.sleep(1000);
+      resolve(true);
+    } else {
+      logger.error("MAP 模块: 调用失败");
+      logger.info("请重新输入 MAP 配置信息：");
+      await common.sleep(1000);
+      resolve(createMap(path));
+    }
   });
 };
