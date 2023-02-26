@@ -45,7 +45,7 @@ import Locals from "./core/local";
   app.use("/", express.static(common.path(__dirname, "../static/")));
 
   // 路由和api
-  app.use("/", Route);
+  app.use("/", await Route());
   app.use("/api/", await Api());
 
   // 捕捉其他未匹配到的
