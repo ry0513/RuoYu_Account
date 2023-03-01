@@ -5,8 +5,11 @@ import Account from "../modles/Account";
  * @returns 默认：accountId，nickName，avatar
  */
 export const getUser = (
-  where: { accountId?: number; email?: string },
-  attributes: string[] = []
+  where: RY_Pick<Account, "accountId" | "email">,
+  attributes: RY_Array<
+    Account,
+    "email" | "phone" | "status" | "registerIp" | "registerPlace" | "salt"
+  > = []
 ) => {
   return Account.findOne({
     attributes: ["accountId", "nickName", "avatar", ...attributes],

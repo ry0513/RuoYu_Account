@@ -40,3 +40,9 @@ interface MapConfig {
   sk: string;
 }
 type RequestGet = { [key: string]: any };
+
+type RY_Pick<T, K extends keyof T> = {
+  [P in K]?: T[P];
+};
+
+type RY_Array<T, K extends keyof T> = Array<K>;

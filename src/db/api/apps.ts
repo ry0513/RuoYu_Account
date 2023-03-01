@@ -5,8 +5,8 @@ import Apps from "../modles/Apps";
  * @returns 默认：appId，appName
  */
 export const getApp = (
-  where: { appId?: number; clientKey?: string; serveKey?: string },
-  attributes: string[] = []
+  where: RY_Pick<Apps, "appId" | "clientKey" | "serveKey">,
+  attributes: RY_Array<Apps, "accountId" | "clientKey" | "serveKey"> = []
 ) => {
   return Apps.findOne({
     attributes: ["appId", "appName", ...attributes],

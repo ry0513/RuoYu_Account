@@ -79,12 +79,16 @@ router.post(
     if (!app) {
       return common.res.error(res, { data: "未认证的请求" });
     }
-    redis.get(`apps:${tk}`, async (err, data) => {
-      if (!data) {
+    redis.get(`apps:${tk}`, (err, user) => {
+      if (!user) {
         return common.res.error(res, { data: "未认证的请求" });
       }
-      common.res.success(res, {
-        data: await getUser({ accountId: JSON.parse(data).account.accountId }),
+      redis.del(`apps:${tk}`, async () => {
+        common.res.success(res, {
+          data: await getUser({
+            accountId: JSON.parse(user).account.accountId,
+          }),
+        });
       });
     });
   }

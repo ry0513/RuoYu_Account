@@ -54,9 +54,11 @@ export default async () => {
           `apps:${tk}`,
           JSON.stringify({ app, account: req.session.account }),
           "EX",
-          60 * 5
+          60 * 5,
+          () => {
+            res.redirect(`${decodeURIComponent(redirectUri)}?tk=${tk}`);
+          }
         );
-        return res.redirect(`${redirectUri}?tk=${tk}`);
       }
     );
 
