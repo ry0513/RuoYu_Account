@@ -8,7 +8,13 @@ export const getUser = (
   where: RY_Pick<Account, "accountId" | "email">,
   attributes: RY_Array<
     Account,
-    "email" | "phone" | "status" | "registerIp" | "registerPlace" | "salt"
+    | "email"
+    | "phone"
+    | "status"
+    | "registerIp"
+    | "registerPlace"
+    | "salt"
+    | "password"
   > = []
 ) => {
   return Account.findOne({
