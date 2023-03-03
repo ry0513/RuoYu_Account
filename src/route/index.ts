@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import fs from "fs-extra";
 import { needLogin } from "../core/permission";
 import { getApp } from "../db/api/apps";
+import url from "url";
 
 export default async () => {
   return new Promise<Router>(async (resolve) => {
@@ -56,7 +57,11 @@ export default async () => {
           "EX",
           60 * 5,
           () => {
-            res.redirect(`${decodeURIComponent(redirectUri)}?tk=${tk}`);
+            res.redirect(
+              `${redirectUri}${
+                url.parse(redirectUri).query === null ? "?" : "&"
+              }tk=${tk}`
+            );
           }
         );
       }
