@@ -10,7 +10,7 @@ import {
 import Account from "./Account";
 
 @Table({
-  tableName: "Apps",
+  tableName: "apps",
   paranoid: true,
 })
 export default class Apps extends Model {
