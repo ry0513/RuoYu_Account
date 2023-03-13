@@ -1,18 +1,21 @@
 {
   "name": "ruoyu_account",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.0.8",
+  "description": "RuoYu Account",
   "main": "app.js",
   "scripts": {
     "build": "concurrently \"cd src && tsc\" \"cd static && tsc\" \"ts-node static/ts/auto\"",
     "dev": "npm run build && concurrently \"cd src && tsc --watch\" \"cd static && tsc --watch\" \"nodemon dist/app\" \"cross-env NODE_WATCH=dev ts-node static/ts/auto\"",
-    "start": "node dist/app"
+    "app": "node dist/app",
+    "start": "pm2 start ./pm2.json",
+    "stop": "pm2 stop ./pm2.json",
+    "restart": "pm2 restart ./pm2.json"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ry0513/RuoYu_Account.git"
   },
-  "author": "ruoyu",
+  "author": "RuoYu",
   "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/ry0513/RuoYu_Account/issues"

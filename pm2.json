@@ -1,0 +1,12 @@
+{
+  "apps": [
+    {
+      "name": "RuoYu_Account",
+      "script": "./dist/app.js",
+      "max_memory_restart": "512M",
+      "exec_mode": "cluster",
+      "instances": 2,
+      "restart_delay": 60000
+    }
+  ]
+}
