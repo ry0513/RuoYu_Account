@@ -18,7 +18,14 @@ export const redisRun = async ({ port, host, password, db }: RedisConfig) => {
 
 export const redisTest = async ({ port, host, password }: RedisConfig) => {
   return new Promise<number | false>((resolve) => {
-    createClient({ port, host, password })
+    createClient({
+      port,
+      host,
+      password,
+      retry_strategy: () => {
+        return new Error();
+      },
+    })
       .on("ready", () => {
         logger.info("REDIS 模块: 连接正常");
       })
@@ -26,13 +33,11 @@ export const redisTest = async ({ port, host, password }: RedisConfig) => {
         logger.error("REDIS 模块: 服务异常", err);
         resolve(false);
       })
-      .sendCommand(
-        "config",
-        ["get", "databases"],
-        (err, data: [string, number]) => {
-          resolve(data[1]);
+      .config("get", "databases", (err, data) => {
+        if (!err) {
+          resolve((data as unknown as [string, number])[1]);
         }
-      );
+      });
   });
 };
 
