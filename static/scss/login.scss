@@ -1,0 +1,133 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+}
+.mb {
+  margin-bottom: 30px;
+}
+a {
+  color: #006eff;
+  text-decoration: none;
+}
+html,
+body {
+  height: 100%;
+}
+.container {
+  height: 100%;
+  display: flex;
+  color: #333;
+  .container-left {
+    flex: 1 1 auto;
+    background: linear-gradient(135deg, #8e2de2, #4a00e0);
+  }
+  .container-right {
+    flex: 0 1 40%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    background-color: #f9f9f9;
+    padding: 100px 100px 50px;
+    overflow: auto;
+    position: relative;
+    &::after {
+      content: "5555";
+      position: absolute;
+      right: 100%;
+      background-color: aquamarine;
+      z-index: 9999;
+    }
+    .content {
+      width: 100%;
+    }
+    .content-top {
+      font-size: 30px;
+      &.mb {
+        margin-bottom: 40px;
+      }
+    }
+    .content-tip {
+      font-size: 24px;
+      .content-tip_register {
+        font-size: 16px;
+      }
+    }
+    .content-form {
+      margin-bottom: 30px;
+      .content-item {
+        display: block;
+        width: 100%;
+        &.input {
+          padding: 15px 25px;
+          font-size: 16px;
+          border-radius: 5px;
+          border: 1px solid #e3e5ee;
+          background-color: #fff;
+          outline: 0;
+          &::placeholder {
+            color: rgb(179, 179, 179);
+          }
+          &:focus {
+            border: 1px solid #006eff;
+            box-shadow: 0 0 15px 0 rgba(77, 91, 237, 0.2);
+          }
+        }
+        &.checkbox {
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+          font-size: 14px;
+          input {
+            vertical-align: middle;
+            margin-right: 5px;
+          }
+        }
+      }
+      button {
+        width: 100%;
+        line-height: 45px;
+        border-radius: 5px;
+        border: 1px solid #e3e5ee;
+        font-size: 18px;
+        background: #006eff;
+        color: #fff;
+        cursor: pointer;
+        opacity: 1;
+        transition: all 0.5s;
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+}
+.footer {
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 1280px) {
+  .container {
+    .container-right {
+      flex: 0 1 50%;
+    }
+  }
+}
+
+@media (max-width: 960px) {
+  .container {
+    .container-right {
+      flex: 0 0 100%;
+    }
+  }
+}
+@media (max-width: 600px) {
+  .container {
+    .container-right {
+      padding: 50px 20px;
+    }
+  }
+}

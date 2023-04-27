@@ -7,13 +7,48 @@
     <title>登录</title>
     <link
       rel="stylesheet"
-      href="<%= cdnUrl %>plugin/notice/colored-theme.min.css"
+      href="<%= cdnUrl %>/plugin/notice/colored-theme.min.css"
     />
+    <link rel="stylesheet" href="<%= cdnUrl %>/css/login.min.css" />
   </head>
   <body>
-    <input type="text" class="email" placeholder="账号" />
+    <div class="container">
+      <div class="container-left"></div>
+      <div class="container-right">
+        <div class="content">
+          <div class="content-top mb">RuoYu 账号系统</div>
+          <div class="content-tip mb">
+            <span>登录</span>
+            <span class="content-tip_register"
+              >没有账号? <a href="javascript:alert('暂不支持');">注册</a></span
+            >
+          </div>
+          <div class="content-form">
+            <input
+              class="mb content-item input email"
+              placeholder="请输入邮箱"
+              type="email"
+              id="account_email"
+            />
+            <input
+              class="mb content-item input password"
+              placeholder="请输入密码"
+              type="password"
+              id="account_password"
+            />
+            <label class="mb content-item checkbox" for="account_checkbox">
+              <input id="account_checkbox" type="checkbox" />
+              <span>记住登录信息</span>
+            </label>
+            <button class="submit">登录</button>
+          </div>
+        </div>
+        <div class="footer">©2023 - TNLOY.CN</div>
+      </div>
+    </div>
+    <!-- <input type="text" class="email" placeholder="账号" />
     <input type="password" class="password" placeholder="密码" />
-    <button class="submit">登录</button>
+    <button class="submit">登录</button> -->
   </body>
   <script src="<%= cdnUrl %>/plugin/notice/notice.min.js"></script>
   <script src="<%= cdnUrl %>/plugin/axios/axios.min.js"></script>

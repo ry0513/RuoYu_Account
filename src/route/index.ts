@@ -21,6 +21,9 @@ export default async () => {
       if (req.session.account) {
         return res.redirect("/");
       }
+      res.locals = {
+        bgImages: "/images/bg.jpg",
+      };
       res.render("login");
     });
 

@@ -2,18 +2,14 @@ import sass from "sass";
 import uglifyJS from "uglify-js";
 import fs from "fs-extra";
 import { resolve, sep } from "path";
-const watch = process.env.NODE_WATCH === "dev";
+import chokidar from "chokidar";
 
 /**
  *    css相关
  */
-// 创建 css 文件夹
 if (!fs.existsSync(resolve(__dirname, "../css"))) {
+  // 创建 css 文件夹
   fs.mkdirSync(resolve(__dirname, "../css"));
-}
-// 创建 scss 文件夹
-if (!fs.existsSync(resolve(__dirname, "../scss"))) {
-  fs.mkdirSync(resolve(__dirname, "../scss"));
 }
 
 // 编译
@@ -36,16 +32,18 @@ const compile = (path: string) => {
   const destMinPath = path
     .replace(`${sep}scss${sep}`, `${sep}css${sep}`)
     .replace(".scss", ".min.css");
-  fs.writeFileSync(
-    destPath,
-    sass.compile(path, { style: "expanded" }).css,
-    "utf8"
-  );
-  fs.writeFileSync(
-    destMinPath,
-    sass.compile(path, { style: "compressed" }).css,
-    "utf8"
-  );
+  try {
+    fs.writeFileSync(
+      destPath,
+      sass.compile(path, { style: "expanded" }).css,
+      "utf8"
+    );
+    fs.writeFileSync(
+      destMinPath,
+      sass.compile(path, { style: "compressed" }).css,
+      "utf8"
+    );
+  } catch (error) {}
 };
 
 // 自动检测文件
@@ -69,15 +67,14 @@ const uglify = (path: string) => {
   if (index < 0) return;
   if (path.substring(index + 1) !== "js") return;
   if (path.indexOf(".min.js") !== -1) return;
-  const res = uglifyJS.minify(fs.readFileSync(path, "utf8"), {
-    sourceMap: {
-      filename: path.replace(".js", ".min.js"),
-    },
-  });
-  if (res.error) {
-    return;
-  }
-  fs.writeFileSync(path.replace(".js", ".min.js"), res.code);
+  try {
+    const res = uglifyJS.minify(fs.readFileSync(path, "utf8"), {
+      sourceMap: {
+        filename: path.replace(".js", ".min.js"),
+      },
+    });
+    fs.writeFileSync(path.replace(".js", ".min.js"), res.code);
+  } catch (error) {}
 };
 
 // 自动检测
@@ -98,67 +95,76 @@ autoUglify();
 /**
  *    监听
  */
-if (watch) {
+if (process.env.NODE_WATCH === "dev") {
   // 监听scss文件改变
-  fs.watch(
-    resolve(__dirname, "../scss"),
-    {
-      recursive: true,
-    },
-    (eventType, filename) => {
-      if (!filename.includes(".scss")) return;
-      if (eventType === "change") {
-        setTimeout(() => {
-          compile(resolve(__dirname, "../scss", filename));
-        }, 100);
-      } else if (eventType === "rename") {
-        if (!fs.existsSync(resolve(__dirname, "../scss", filename))) {
-          fs.unlinkSync(
-            resolve(__dirname, "../css", filename.replace(".scss", ".min.css"))
-          );
-          fs.unlinkSync(
-            resolve(__dirname, "../css", filename.replace(".scss", ".css"))
-          );
-        } else {
-          setTimeout(() => {
-            compile(resolve(__dirname, "../scss", filename));
-          }, 100);
-        }
-      }
-    }
-  );
+  chokidar
+    .watch(resolve(__dirname, "../scss"), {
+      ignored: /[\/\\]\./,
+      persistent: true,
+      ignoreInitial: true,
+      awaitWriteFinish: false,
+      depth: Infinity,
+    })
+    .on("add", (path) => {
+      if (!path.includes(".scss")) return;
+      compile(path);
+    })
+    .on("change", (path) => {
+      if (!path.includes(".scss")) return;
+      compile(path);
+    })
+    .on("unlink", (path) => {
+      if (!path.includes(".scss")) return;
+      fs.unlinkSync(
+        path
+          .replace(resolve(__dirname, "../scss"), resolve(__dirname, "../css"))
+          .replace(".scss", ".min.css")
+      );
+      fs.unlinkSync(
+        path
+          .replace(resolve(__dirname, "../scss"), resolve(__dirname, "../css"))
+          .replace(".scss", ".css")
+      );
+    });
 
   // 监听js文件改变
-  fs.watch(
-    resolve(__dirname, "../js"),
-    {
-      recursive: true,
-    },
-    (eventType, filename) => {
-      if (eventType === "change") {
-        uglify(resolve(__dirname, "../js", filename));
-      }
-    }
-  );
+  chokidar
+    .watch(resolve(__dirname, "../js"), {
+      ignored: /[\/\\]\./,
+      persistent: true,
+      ignoreInitial: true,
+      awaitWriteFinish: false,
+      depth: Infinity,
+    })
+    .on("add", (path) => {
+      if (!path.includes(".js")) return;
+      uglify(path);
+    })
+    .on("change", (path) => {
+      if (!path.includes(".js")) return;
+      uglify(path);
+    });
 
   // 监听ts文件改变
-  fs.watch(
-    resolve(__dirname, "../ts"),
-    {
-      recursive: true,
-    },
-    (eventType, filename) => {
-      if (!filename.includes(".ts")) return;
-      if (eventType === "rename") {
-        if (!fs.existsSync(resolve(__dirname, "../ts", filename))) {
-          fs.unlinkSync(
-            resolve(__dirname, "../js", filename.replace(".ts", ".js"))
-          );
-          fs.unlinkSync(
-            resolve(__dirname, "../js", filename.replace(".ts", ".min.js"))
-          );
-        }
-      }
-    }
-  );
+  chokidar
+    .watch(resolve(__dirname, "../ts"), {
+      ignored: /[\/\\]\./,
+      persistent: true,
+      ignoreInitial: true,
+      awaitWriteFinish: false,
+      depth: Infinity,
+    })
+    .on("unlink", (path) => {
+      if (!path.includes(".ts")) return;
+      fs.unlinkSync(
+        path
+          .replace(resolve(__dirname, "../ts"), resolve(__dirname, "../js"))
+          .replace(".ts", ".min.js")
+      );
+      fs.unlinkSync(
+        path
+          .replace(resolve(__dirname, "../ts"), resolve(__dirname, "../js"))
+          .replace(".ts", ".js")
+      );
+    });
 }
