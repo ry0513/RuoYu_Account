@@ -9,12 +9,12 @@
     } catch (error) {}
   }
 })();
+
 $ry(".submit").click(() => {
   const email = $ry("#account_email").val();
   const password = $ry("#account_password").val();
   const checkbox = ($ry("#account_checkbox").element as HTMLInputElement)
     .checked;
-
   if (!email || !password) {
     $ryTools.notify({
       description: "账号或密码为空",
@@ -22,7 +22,6 @@ $ry(".submit").click(() => {
     });
     return;
   }
-
   axios({
     method: "post",
     url: "/api/account/login",
@@ -33,7 +32,7 @@ $ry(".submit").click(() => {
   }).then(({ data: res }) => {
     if (res.code === 0) {
       $ryTools.notify({
-        description: res.msg,
+        description: res.data || res.msg,
       });
       if (checkbox) {
         localStorage.setItem(
@@ -50,9 +49,15 @@ $ry(".submit").click(() => {
       }, 1000);
     } else {
       $ryTools.notify({
-        description: res.data,
+        description: res.data || res.msg,
         type: "error",
       });
     }
+  });
+});
+$ry(".register").click(() => {
+  $ryTools.notify({
+      description: "暂不支持注册",
+      type: "error",
   });
 });

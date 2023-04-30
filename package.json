@@ -10,7 +10,8 @@
     "app": "node dist/app",
     "start": "pm2 start ./pm2.json",
     "stop": "pm2 stop ./pm2.json",
-    "restart": "pm2 restart ./pm2.json"
+    "restart": "pm2 restart ./pm2.json",
+    "install:dev": "npm install --omit=dev"
   },
   "repository": {
     "type": "git",
